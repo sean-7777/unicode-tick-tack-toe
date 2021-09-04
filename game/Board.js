@@ -1,5 +1,5 @@
 // store and update the board. also check for winners.
-class Board {
+export default class Board {
   constructor() {
     // singleton
     if (Board.__instance) {
