@@ -22,6 +22,7 @@ export default function UnicodeGenerator(board) {
       }
     }
   };
+  // test
 
   // top line, ex: ╔═══╦═══╦═══╗
   for (let i in board[0]) {
