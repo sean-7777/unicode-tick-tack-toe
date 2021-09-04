@@ -20,10 +20,6 @@ export default function UnicodeGenerator(board) {
         top: "╦", bottom: "╩",
         "left": "╠", right: "╣"
       }
-    },
-    symbol: {
-      circle: "⭕️",
-      cross: "❌"
     }
   };
 
