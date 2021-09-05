@@ -15,12 +15,12 @@ export default class Board {
   }
 
   set board(val) {
-    throw new Error("You cannot change the board");
+    throw new Error("You cannot change the board!");
   }
 
   update(player, moveX, moveY) {
-    if (this.#board[moveX][moveY] !== "*") return false;
-    else if ((moveX > this.#board.length - 2) || (moveY > this.#board.length - 2)) return false;
+    if ((moveX > this.#board.length - 1) || (moveY > this.#board.length - 1)) return false;
+    else if (this.#board[moveX][moveY] !== "*") return false;
     else this.#board[moveX][moveY] = player;
     return true;
   }
@@ -79,7 +79,8 @@ export default class Board {
       // make top right to bottom left diagonals into rows
       let diagonalCheck2Arr = generateEmptyArray(this.#board.length);
       // the .map reverses the board
-      const reversedBoard = this.#board.map(elem => elem.reverse());
+      // the .slice creates a clone otherwise it reverses the board
+      const reversedBoard = this.#board.map(elem => elem.slice().reverse());
       for (let i in this.#board) diagonalCheck2Arr[i] = reversedBoard[i][i]
 
       const diagonalCheck2 = checkLineSingle(diagonalCheck2Arr);
