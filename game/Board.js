@@ -1,33 +1,97 @@
 // store and update the board. also check for winners.
 export default class Board {
-  constructor() {
-    // singleton
-    if (Board.__instance) {
-      return Board.__instance;
-    }
-    Board.__instance = this;
+  constructor(length) {
+    this.#board = this.#generateEmptyMatrix("*", length);
   }
 
-  board = [
-    ["*", "*", "*"],
-    ["*", "*", "*"],
-    ["*", "*", "*"]
-  ];
+  #generateEmptyMatrix(filler, length) {
+    return new Array(length).fill(null).map(e => new Array(length).fill(filler));
+  }
 
-  update(move) {
-    // parse string
-    const player = move[0];
-    const moveX = parseInt(move[1]), moveY = parseInt(move[2]);
-    
-    // update board
-    if (this.board[moveX][moveY]) return false;
-    this.board[moveX][moveY] = player;
+  #board;
+
+  get board() {
+    return this.#board;
+  }
+
+  set board(val) {
+    throw new Error("You cannot change the board");
+  }
+
+  update(player, moveX, moveY) {
+    if (this.#board[moveX][moveY] !== "*") return false;
+    else if ((moveX > this.#board.length - 2) || (moveY > this.#board.length - 2)) return false;
+    else this.#board[moveX][moveY] = player;
+    return true;
   }
 
   checkWin() {
+    // check winner
+    // lines
+    let winner = (() => {
+  
+      // checks for horizontal line winners
+      function checkLine(board) {
+        // loop through each, and check if each line only has one different element not counting nothing (the asterisk)
+        for (let row of board) {
+          row = row.map(e => e === "*" ? "" : e)
+          const unique = new Set(row);
+          if (unique.size === 1) return row[0];
+        }
+        return false;
+      }
+
+      const horizontalCheck = checkLine(this.#board); // horizontal lines
+  
+      // make cols into rows
+      let verticalCheckArr = this.#generateEmptyMatrix("", this.#board.length);
+      let outerCounter = 0;
+      for (let row of this.#board) {
+        let innerCounter = 0;
+        for (let col of row) {
+          verticalCheckArr[innerCounter][outerCounter] = col;
+          innerCounter++;
+        }
+        outerCounter++;
+      }
+
+      const verticalCheck = checkLine(verticalCheckArr); // vertical lines
+  
+
+      // get empty array
+      function generateEmptyArray(length) {
+        return new Array(length).fill("");
+      }
+      // same as checkLine(), except it doesn't have a loop
+      function checkLineSingle(line) {
+        line = line.map(e => e === "*" ? "" : e)
+        const unique = new Set(line);
+        if (unique.size === 1) return line[0];
+        return false;
+      }
+
+      // make top left to bottom right diagonals into rows
+      let diagonalCheck1Arr = generateEmptyArray(this.#board.length);
+      for (let i in this.#board) diagonalCheck1Arr[i] = this.#board[i][i];
+
+      const diagonalCheck1 = checkLineSingle(diagonalCheck1Arr);
+
+      // make top right to bottom left diagonals into rows
+      let diagonalCheck2Arr = generateEmptyArray(this.#board.length);
+      // the .map reverses the board
+      const reversedBoard = this.#board.map(elem => elem.reverse());
+      for (let i in this.#board) diagonalCheck2Arr[i] = reversedBoard[i][i]
+
+      const diagonalCheck2 = checkLineSingle(diagonalCheck2Arr);
+
+
+      return horizontalCheck || verticalCheck || diagonalCheck1 || diagonalCheck2;
+    })();
+    if (winner) return winner;
+  
     // check for ties
     if ((() => {
-      for (let row of this.board) {
+      for (let row of this.#board) {
         for (let col of row) {
           if (col === "*") return false;
         }
@@ -36,62 +100,7 @@ export default class Board {
     })()) {
       return "tie";
     }
-
-    // check winner
-    // lines
-    let winner = (() => {
-      function check(board) {
-        // loop through each, and check if each line only has one different element not counting nothing (the asterisk)
-        for (let row of board) {
-          const unique = new Set(row);
-          unique.delete("*");
-          if (unique.size === 1) return row[0];
-        }
-        return false;
-      }
-      const check1 = check(this.board); // left right lines
-      // make rows into cols
-      let newArr = new Array(this.board.length).fill([]);
-      let outerCounter = 0;
-      for (let row of this.board) {
-        let innerCounter = 0;
-        for (let col of row) {
-          newArr[innerCounter][outerCounter] = col;
-          innerCounter++;
-        }
-        outerCounter++;
-      }
-      const check2 = check(newArr); // up down lines
-      
-      if (!check1 && !check2) return false;
-      else return check1 || check2;
-    })();
-    if (winner) return winner;
-
-    // diagonals
-    winner = (() => {
-      function check(player) {
-        // check from top left to bottom right
-        let xCounter = 0, yCounter = 0;
-        for (let i in this.board.length) {
-          if (this.board[xCounter][yCounter] !== player) {
-            // check from top right to bottom left
-            xCounter = this.board.length, yCounter = this.board.length;
-            for (let i in this.board.length) {
-              if (this.board[xCounter][yCounter] !== player) return false;
-              xCounter--;
-              yCounter--;
-            }
-            break;
-          };
-          xCounter++;
-          yCounter++;
-        }
-        return true;
-      }
-    })();
-    if (winner) return winner;
-
+  
     return "no winner";
   }
 }

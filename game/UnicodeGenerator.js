@@ -18,7 +18,7 @@ export default function UnicodeGenerator(board) {
       cross: "╬",
       triple: {
         top: "╦", bottom: "╩",
-        "left": "╠", right: "╣"
+        left: "╠", right: "╣"
       }
     }
   };
@@ -60,7 +60,6 @@ export default function UnicodeGenerator(board) {
    result += char.basic.vertical;
    result += "\n";
  }
-
  // bottom, ex. ╚═══╩═══╩═══╝
  for (let i in board[0]) {
    if (i === "0") result += char.corner.bottom.left;
@@ -68,6 +67,11 @@ export default function UnicodeGenerator(board) {
    result += char.basic.horizontal.repeat(3);
  }
  result += char.corner.bottom.right;
+
+ // title, ex. ......BOARD......
+ const numberOfDots = (result.split("\n")[0].length - 5) / 2 + 2;
+ result = `${".".repeat(numberOfDots)}BOARD${".".repeat(numberOfDots)}
+${result.split("\n").map(elem => `  ${elem}`).join("\n")}`;
 
  return result;
 }
